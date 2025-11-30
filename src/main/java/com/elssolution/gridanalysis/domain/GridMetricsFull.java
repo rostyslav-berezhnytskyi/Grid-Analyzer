@@ -1,6 +1,7 @@
 package com.elssolution.gridanalysis.domain;
 
 public record GridMetricsFull(
+        String timestampHuman,
         long timestamp,
 
         float vL1, float vL2, float vL3,

@@ -3,11 +3,16 @@ package com.elssolution.gridanalysis.domain;
 import com.elssolution.gridanalysis.modbus.MeterDecoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 @Component
 public class GridMetricsDecoder {
 
     private final MeterDecoder f;
     private final MeterRegisterMap r;
+
 
     public GridMetricsDecoder(MeterDecoder f, MeterRegisterMap r) {
         this.f = f;
@@ -17,7 +22,13 @@ public class GridMetricsDecoder {
     public GridMetricsFull decode(SmSnapshot snap) {
         short[] w = snap.data;
 
+        String human = Instant.ofEpochMilli(snap.updatedAtMs)// normal human time
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         return new GridMetricsFull(
+                human,
                 snap.updatedAtMs,
 
                 f.readFloatOrDefault(w, r.vL1(), 0),

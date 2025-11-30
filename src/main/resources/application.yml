@@ -31,50 +31,53 @@ storage:
 # SDM630 REGISTER MAP
 #########################################
 meterMap:
-  vL1:      ${METERMAP_VL1:0}
-  vL2:      ${METERMAP_VL2:2}
-  vL3:      ${METERMAP_VL3:4}
+  # Voltages
+  vL1: 0
+  vL2: 2
+  vL3: 4
 
-  vL12:     ${METERMAP_VL12:6}
-  vL23:     ${METERMAP_VL23:8}
-  vL31:     ${METERMAP_VL31:10}
+  # Currents
+  iL1: 6
+  iL2: 8
+  iL3: 10
 
-  iL1:      ${METERMAP_IL1:12}
-  iL2:      ${METERMAP_IL2:14}
-  iL3:      ${METERMAP_IL3:16}
-  in:       ${METERMAP_IN:18}
+  # Active Power (W)
+  pL1: 12
+  pL2: 14
+  pL3: 16
+  pTotal: 18
 
-  pL1:      ${METERMAP_PL1:20}
-  pL2:      ${METERMAP_PL2:22}
-  pL3:      ${METERMAP_PL3:24}
-  pTotal:   ${METERMAP_PTOTAL:26}
+  # Reactive Power (VAr)
+  qL1: 20
+  qL2: 22
+  qL3: 24
+  qTotal: 26
 
-  qL1:      ${METERMAP_QL1:28}
-  qL2:      ${METERMAP_QL2:30}
-  qL3:      ${METERMAP_QL3:32}
-  qTotal:   ${METERMAP_QTOTAL:34}
+  # Apparent Power (VA)
+  sL1: 28
+  sL2: 30
+  sL3: 32
+  sTotal: 34
 
-  sL1:      ${METERMAP_SL1:36}
-  sL2:      ${METERMAP_SL2:38}
-  sL3:      ${METERMAP_SL3:40}
-  sTotal:   ${METERMAP_STOTAL:42}
+  # Power Factor
+  pfL1: 36
+  pfL2: 38
+  pfL3: 40
+  pfTotal: 42
 
-  pfL1:     ${METERMAP_PFL1:44}
-  pfL2:     ${METERMAP_PFL2:46}
-  pfL3:     ${METERMAP_PFL3:48}
-  pfTotal:  ${METERMAP_PFTOTAL:50}
+  # Frequency
+  frequency: 70
 
-  frequency: ${METERMAP_FREQUENCY:52}
+  # Energy (not in first block — need additional request!)
+  kwhImportL1: 256
+  kwhImportL2: 258
+  kwhImportL3: 260
+  kwhImportTotal: 262
 
-  kwhImportL1:      ${METERMAP_KWH_L1:54}
-  kwhImportL2:      ${METERMAP_KWH_L2:56}
-  kwhImportL3:      ${METERMAP_KWH_L3:58}
-  kwhImportTotal:   ${METERMAP_KWH_TOTAL:60}
-
-  kvarhImportL1:    ${METERMAP_KVARH_L1:62}
-  kvarhImportL2:    ${METERMAP_KVARH_L2:64}
-  kvarhImportL3:    ${METERMAP_KVARH_L3:66}
-  kvarhImportTotal: ${METERMAP_KVARH_TOTAL:68}
+  kvarhImportL1: 266
+  kvarhImportL2: 268
+  kvarhImportL3: 270
+  kvarhImportTotal: 272
 
 #########################################
 # ACTUATOR & MANAGEMENT

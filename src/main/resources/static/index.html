@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grid Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        h2 { margin-top: 0; }
+        .row { display: flex; gap: 20px; }
+        .box {
+            flex: 1;
+            padding: 15px;
+            background: #fff;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        .value { font-size: 28px; font-weight: bold; }
+        canvas { width: 100%; height: 100px; }
+    </style>
+</head>
+<body>
+
+<h1>Grid Live Dashboard</h1>
+
+<div class="card">
+    <h2>Voltages (V)</h2>
+    <div class="row">
+        <div class="box"><div>L1</div><div id="vL1" class="value">---</div></div>
+        <div class="box"><div>L2</div><div id="vL2" class="value">---</div></div>
+        <div class="box"><div>L3</div><div id="vL3" class="value">---</div></div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Currents (A)</h2>
+    <div class="row">
+        <div class="box"><div>L1</div><div id="iL1" class="value">---</div></div>
+        <div class="box"><div>L2</div><div id="iL2" class="value">---</div></div>
+        <div class="box"><div>L3</div><div id="iL3" class="value">---</div></div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Total Power (W)</h2>
+    <div class="row">
+        <div class="box"><div>pTotal</div><div id="pTotal" class="value">---</div></div>
+        <div class="box"><div>Frequency</div><div id="frequency" class="value">---</div></div>
+        <div class="box"><div>PF</div><div id="pfTotal" class="value">---</div></div>
+    </div>
+</div>
+
+<script>
+    async function load() {
+        const r = await fetch('/api/live');
+        const data = await r.json();
+
+        // Voltages
+        document.getElementById("vL1").innerText = data.vL1.toFixed(1);
+        document.getElementById("vL2").innerText = data.vL2.toFixed(1);
+        document.getElementById("vL3").innerText = data.vL3.toFixed(1);
+
+        // Currents
+        document.getElementById("iL1").innerText = data.iL1.toFixed(2);
+        document.getElementById("iL2").innerText = data.iL2.toFixed(2);
+        document.getElementById("iL3").innerText = data.iL3.toFixed(2);
+
+        // Power + frequency
+        document.getElementById("pTotal").innerText = data.pTotal.toFixed(1);
+        document.getElementById("frequency").innerText = data.frequency.toFixed(2);
+        document.getElementById("pfTotal").innerText = data.pfTotal.toFixed(2);
+    }
+
+    setInterval(load, 1000);
+    load();
+</script>
+
+</body>
+</html>

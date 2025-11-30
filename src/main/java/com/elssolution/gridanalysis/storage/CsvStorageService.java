@@ -42,31 +42,31 @@ public class CsvStorageService {
     }
 
     private String headerLine() {
-        return "timestamp,"
-                + "vL1,vL2,vL3,vL12,vL23,vL31,"
-                + "iL1,iL2,iL3,iNeutral,"
-                + "pL1,pL2,pL3,pTotal,"
-                + "qL1,qL2,qL3,qTotal,"
-                + "sL1,sL2,sL3,sTotal,"
-                + "pfL1,pfL2,pfL3,pfTotal,"
-                + "frequency,"
-                + "kwhImportL1,kwhImportL2,kwhImportL3,kwhImportTotal,"
-                + "kvarhImportL1,kvarhImportL2,kvarhImportL3,kvarhImportTotal\n";
+        return "timestampHuman;timestamp;"
+                + "vL1;vL2;vL3;vL12;vL23;vL31;"
+                + "iL1;iL2;iL3;iNeutral;"
+                + "pL1;pL2;pL3;pTotal;"
+                + "qL1;qL2;qL3;qTotal;"
+                + "sL1;sL2;sL3;sTotal;"
+                + "pfL1;pfL2;pfL3;pfTotal;"
+                + "frequency;"
+                + "kwhImportL1;kwhImportL2;kwhImportL3;kwhImportTotal;"
+                + "kvarhImportL1;kvarhImportL2;kvarhImportL3;kvarhImportTotal\n";
     }
 
     private String formatLine(GridMetricsFull m) {
         return String.format(
-                "%d," +
-                        "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f," +
-                        "%.2f,%.2f,%.2f,%.2f\n",
-
+                "%s;%d;" +
+                        "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f;" +
+                        "%.2f;%.2f;%.2f;%.2f\n",
+                m.timestampHuman(),
                 m.timestamp(),
 
                 m.vL1(), m.vL2(), m.vL3(), m.vL12(), m.vL23(), m.vL31(),
