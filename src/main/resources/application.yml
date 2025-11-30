@@ -1,0 +1,105 @@
+#########################################
+# SERIAL / MODBUS CONFIGURATION
+#########################################
+serial:
+  input:
+    port: ${SERIAL_INPUT_PORT:COM6}
+    baudRate: ${SERIAL_INPUT_BAUD:9600}
+    slaveId: ${SERIAL_INPUT_SLAVE:1}
+
+    # Polling interval in ms (1 second recommended for SDM630)
+    pollInterval: ${SERIAL_INPUT_POLL:1000}
+
+    # Startup delay after reboot / USB reconnect
+    initialOpenDelayMs: ${SERIAL_INITIAL_OPEN_DELAY_MS:2000}
+
+    # Retry behavior
+    reopenBackoffMs: ${SERIAL_REOPEN_BACKOFF_MS:2000}
+    warmupMs: ${SERIAL_WARMUP_MS:2000}
+    timeoutsBeforeReopen: ${SERIAL_TIMEOUTS_BEFORE_REOPEN:3}
+
+#########################################
+# CSV STORAGE
+#########################################
+storage:
+  csv:
+    # Folder where CSV files will be written.
+    # Default: "data" inside current working dir.
+    path: ${CSV_PATH:data}
+
+#########################################
+# SDM630 REGISTER MAP
+#########################################
+meterMap:
+  vL1:      ${METERMAP_VL1:0}
+  vL2:      ${METERMAP_VL2:2}
+  vL3:      ${METERMAP_VL3:4}
+
+  vL12:     ${METERMAP_VL12:6}
+  vL23:     ${METERMAP_VL23:8}
+  vL31:     ${METERMAP_VL31:10}
+
+  iL1:      ${METERMAP_IL1:12}
+  iL2:      ${METERMAP_IL2:14}
+  iL3:      ${METERMAP_IL3:16}
+  in:       ${METERMAP_IN:18}
+
+  pL1:      ${METERMAP_PL1:20}
+  pL2:      ${METERMAP_PL2:22}
+  pL3:      ${METERMAP_PL3:24}
+  pTotal:   ${METERMAP_PTOTAL:26}
+
+  qL1:      ${METERMAP_QL1:28}
+  qL2:      ${METERMAP_QL2:30}
+  qL3:      ${METERMAP_QL3:32}
+  qTotal:   ${METERMAP_QTOTAL:34}
+
+  sL1:      ${METERMAP_SL1:36}
+  sL2:      ${METERMAP_SL2:38}
+  sL3:      ${METERMAP_SL3:40}
+  sTotal:   ${METERMAP_STOTAL:42}
+
+  pfL1:     ${METERMAP_PFL1:44}
+  pfL2:     ${METERMAP_PFL2:46}
+  pfL3:     ${METERMAP_PFL3:48}
+  pfTotal:  ${METERMAP_PFTOTAL:50}
+
+  frequency: ${METERMAP_FREQUENCY:52}
+
+  kwhImportL1:      ${METERMAP_KWH_L1:54}
+  kwhImportL2:      ${METERMAP_KWH_L2:56}
+  kwhImportL3:      ${METERMAP_KWH_L3:58}
+  kwhImportTotal:   ${METERMAP_KWH_TOTAL:60}
+
+  kvarhImportL1:    ${METERMAP_KVARH_L1:62}
+  kvarhImportL2:    ${METERMAP_KVARH_L2:64}
+  kvarhImportL3:    ${METERMAP_KVARH_L3:66}
+  kvarhImportTotal: ${METERMAP_KVARH_TOTAL:68}
+
+#########################################
+# ACTUATOR & MANAGEMENT
+#########################################
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: "/_manage"
+
+#########################################
+# LOGGING
+#########################################
+logging:
+  level:
+    root: INFO
+    com.factorygridmonitor: INFO
+
+#########################################
+# SPRING SERVER
+#########################################
+server:
+  port: ${SERVER_PORT:8888}
+  address: ${SERVER_ADDRESS:0.0.0.0}
