@@ -32,52 +32,52 @@ storage:
 #########################################
 meterMap:
   # Voltages
-  vL1: 0
-  vL2: 2
-  vL3: 4
+  vL1: ${METERMAP_VL1:0}
+  vL2: ${METERMAP_VL2:2}
+  vL3: ${METERMAP_VL3:4}
 
   # Currents
-  iL1: 6
-  iL2: 8
-  iL3: 10
+  iL1: ${METERMAP_IL1:6}
+  iL2: ${METERMAP_IL2:8}
+  iL3: ${METERMAP_IL3:10}
 
   # Active Power (W)
-  pL1: 12
-  pL2: 14
-  pL3: 16
-  pTotal: 18
+  pL1: ${METERMAP_PL1:12}
+  pL2: ${METERMAP_PL2:14}
+  pL3: ${METERMAP_PL3:16}
+  pTotal: ${METERMAP_PTOTAL:18}
 
   # Reactive Power (VAr)
-  qL1: 20
-  qL2: 22
-  qL3: 24
-  qTotal: 26
+  qL1: ${METERMAP_QL1:20}
+  qL2: ${METERMAP_QL2:22}
+  qL3: ${METERMAP_QL3:24}
+  qTotal: ${METERMAP_QTOTAL:26}
 
   # Apparent Power (VA)
-  sL1: 28
-  sL2: 30
-  sL3: 32
-  sTotal: 34
+  sL1: ${METERMAP_SL1:28}
+  sL2: ${METERMAP_SL2:30}
+  sL3: ${METERMAP_SL3:32}
+  sTotal: ${METERMAP_STOTAL:34}
 
   # Power Factor
-  pfL1: 36
-  pfL2: 38
-  pfL3: 40
-  pfTotal: 42
+  pfL1: ${METERMAP_PFL1:36}
+  pfL2: ${METERMAP_PFL2:38}
+  pfL3: ${METERMAP_PFL3:40}
+  pfTotal: ${METERMAP_PFTOTAL:42}
 
   # Frequency
-  frequency: 70
+  frequency: ${METERMAP_FREQUENCY:70}
 
   # Energy (not in first block — need additional request!)
-  kwhImportL1: 256
-  kwhImportL2: 258
-  kwhImportL3: 260
-  kwhImportTotal: 262
+  kwhImportL1: ${METERMAP_KWH_IMPORT_L1:256}
+  kwhImportL2: ${METERMAP_KWH_IMPORT_L2:258}
+  kwhImportL3: ${METERMAP_KWH_IMPORT_L3:260}
+  kwhImportTotal: ${METERMAP_KWH_IMPORT_TOTAL:262}
 
-  kvarhImportL1: 266
-  kvarhImportL2: 268
-  kvarhImportL3: 270
-  kvarhImportTotal: 272
+  kvarhImportL1: ${METERMAP_KVARH_IMPORT_L1:266}
+  kvarhImportL2: ${METERMAP_KVARH_IMPORT_L2:268}
+  kvarhImportL3: ${METERMAP_KVARH_IMPORT_L3:270}
+  kvarhImportTotal: ${METERMAP_KVARH_IMPORT_TOTAL:272}
 
 #########################################
 # ACTUATOR & MANAGEMENT
