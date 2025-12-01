@@ -1,8 +1,11 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Grid Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,6 +56,15 @@
 </div>
 
 <div class="card">
+    <h2>Phase Power (W)</h2>
+    <div class="row">
+        <div class="box"><div>P L1</div><div id="pL1" class="value">---</div></div>
+        <div class="box"><div>P L2</div><div id="pL2" class="value">---</div></div>
+        <div class="box"><div>P L3</div><div id="pL3" class="value">---</div></div>
+    </div>
+</div>
+
+<div class="card">
     <h2>Total Power (W)</h2>
     <div class="row">
         <div class="box"><div>pTotal</div><div id="pTotal" class="value">---</div></div>
@@ -61,30 +73,226 @@
     </div>
 </div>
 
+<div class="card">
+    <h2>Last 60 seconds — Voltages</h2>
+    <canvas id="chartVolt"></canvas>
+</div>
+
+<div class="card">
+    <h2>Last 60 seconds — Currents</h2>
+    <canvas id="chartCurrent"></canvas>
+</div>
+
+<div class="card">
+    <h2>Last 60 seconds — Total Power</h2>
+    <canvas id="chartPower"></canvas>
+</div>
+
+<div class="card">
+    <h2>Phase Balance</h2>
+    <div id="balance" class="value">---</div>
+</div>
+
+<div class="card">
+    <h2>Day View (from CSV)</h2>
+
+    <input type="date" id="dayPicker" />
+
+    <button onclick="loadDay('voltage')">Voltages</button>
+    <button onclick="loadDay('current')">Currents</button>
+    <button onclick="loadDay('power')">Power</button>
+
+    <canvas id="dayChart"></canvas>
+</div>
+
 <script>
+
+    let labels = [];
+
+    let voltL1 = [], voltL2 = [], voltL3 = [];
+    let curL1 = [], curL2 = [], curL3 = [];
+    let pL1Arr = [], pL2Arr = [], pL3Arr = [];
+    let pTotalArr = [];
+
+    function pushLimit(arr, val) {
+        if (arr.length > 60) arr.shift();
+        arr.push(val);
+    }
+
+    function colorize(el, value, min, max) {
+        if (value < min) el.style.color = "orange";
+        else if (value > max) el.style.color = "red";
+        else el.style.color = "green";
+    }
+
     async function load() {
         const r = await fetch('/api/live');
         const data = await r.json();
 
-        // Voltages
+        // ---- DISPLAY MAIN VALUES ----
         document.getElementById("vL1").innerText = data.vL1.toFixed(1);
         document.getElementById("vL2").innerText = data.vL2.toFixed(1);
         document.getElementById("vL3").innerText = data.vL3.toFixed(1);
 
-        // Currents
         document.getElementById("iL1").innerText = data.iL1.toFixed(2);
         document.getElementById("iL2").innerText = data.iL2.toFixed(2);
         document.getElementById("iL3").innerText = data.iL3.toFixed(2);
 
-        // Power + frequency
+        document.getElementById("pL1").innerText = data.pL1.toFixed(1);
+        document.getElementById("pL2").innerText = data.pL2.toFixed(1);
+        document.getElementById("pL3").innerText = data.pL3.toFixed(1);
+
         document.getElementById("pTotal").innerText = data.pTotal.toFixed(1);
         document.getElementById("frequency").innerText = data.frequency.toFixed(2);
         document.getElementById("pfTotal").innerText = data.pfTotal.toFixed(2);
+
+        // ---- COLOR INDICATORS ----
+        colorize(document.getElementById("vL1"), data.vL1, 215, 240);
+        colorize(document.getElementById("vL2"), data.vL2, 215, 240);
+        colorize(document.getElementById("vL3"), data.vL3, 215, 240);
+
+        // ---- CHART DATA ----
+        if (labels.length > 60) labels.shift();
+        labels.push(new Date().toLocaleTimeString());
+
+        pushLimit(voltL1, data.vL1);
+        pushLimit(voltL2, data.vL2);
+        pushLimit(voltL3, data.vL3);
+
+        pushLimit(curL1, data.iL1);
+        pushLimit(curL2, data.iL2);
+        pushLimit(curL3, data.iL3);
+
+        pushLimit(pL1Arr, data.pL1);
+        pushLimit(pL2Arr, data.pL2);
+        pushLimit(pL3Arr, data.pL3);
+
+        pushLimit(pTotalArr, data.pTotal);
+
+        chartVolt.update();
+        chartCurrent.update();
+        chartPower.update();
+
+        // ---- PHASE BALANCE ----
+        let maxV = Math.max(data.vL1, data.vL2, data.vL3);
+        let minV = Math.min(data.vL1, data.vL2, data.vL3);
+        let diff = maxV - minV;
+
+        const balanceEl = document.getElementById("balance");
+        balanceEl.innerText = diff.toFixed(1) + " V difference";
+        colorize(balanceEl, diff, 0, 10);
     }
+
+    // ---- CHARTS INIT ----
+
+    const chartVolt = new Chart(document.getElementById("chartVolt"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: "L1", data: voltL1, borderColor: "red" },
+                { label: "L2", data: voltL2, borderColor: "green" },
+                { label: "L3", data: voltL3, borderColor: "blue" }
+            ]
+        },
+        options: { animation: false }
+    });
+
+    const chartCurrent = new Chart(document.getElementById("chartCurrent"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: "L1", data: curL1, borderColor: "red" },
+                { label: "L2", data: curL2, borderColor: "green" },
+                { label: "L3", data: curL3, borderColor: "blue" }
+            ]
+        },
+        options: { animation: false }
+    });
+
+    const chartPower = new Chart(document.getElementById("chartPower"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: "Total Power", data: pTotalArr, borderColor: "black" },
+                { label: "P L1", data: pL1Arr, borderColor: "red" },
+                { label: "P L2", data: pL2Arr, borderColor: "green" },
+                { label: "P L3", data: pL3Arr, borderColor: "blue" }
+            ]
+        },
+        options: { animation: false }
+    });
+
+
+    let dayChart = null;
+
+    async function loadDay(type) {
+        let date = document.getElementById("dayPicker").value;
+        if (!date) {
+            alert("Pick a date first.");
+            return;
+        }
+
+        const r = await fetch(`/api/day?date=${date}`);
+        const data = await r.json();
+
+        const labels = data.timestamps;
+
+        let datasets = [];
+
+        if (type === "voltage") {
+            datasets = [
+                { label: "vL1", data: data.vL1, borderColor: "red" },
+                { label: "vL2", data: data.vL2, borderColor: "green" },
+                { label: "vL3", data: data.vL3, borderColor: "blue" }
+            ];
+        }
+
+        if (type === "current") {
+            datasets = [
+                { label: "iL1", data: data.iL1, borderColor: "red" },
+                { label: "iL2", data: data.iL2, borderColor: "green" },
+                { label: "iL3", data: data.iL3, borderColor: "blue" }
+            ];
+        }
+
+        if (type === "power") {
+            datasets = [
+                { label: "pL1", data: data.pL1, borderColor: "red" },
+                { label: "pL2", data: data.pL2, borderColor: "green" },
+                { label: "pL3", data: data.pL3, borderColor: "blue" },
+                { label: "pTotal", data: data.pTotal, borderColor: "black" }
+            ];
+        }
+
+        if (dayChart !== null) dayChart.destroy();
+
+        dayChart = new Chart(
+            document.getElementById("dayChart"),
+            {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    animation: false,
+                    spanGaps: true,
+                    pointRadius: 0,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: { x: { ticks: { maxTicksLimit: 12 } } }
+                }
+            }
+        );
+    }
+
 
     setInterval(load, 1000);
     load();
+
 </script>
+
+
+
 
 </body>
 </html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f5f5f5;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .value {
+            font-size: 24px;
+            margin-top: 5px;
+        }
+        .time {
+            color: #666;
+            font-size: 14px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Daily Statistics</h1>
+
+<label>Select date: </label>
+<input type="date" id="dayPicker">
+<button onclick="loadSelectedDay()">Load</button>
+
+<div id="date"></div>
+
+<h2>Voltages</h2>
+<div class="grid" id="voltages"></div>
+
+<h2>Imbalance</h2>
+<div id="imbalance" class="card"></div>
+
+<h2>Currents</h2>
+<div class="grid" id="currents"></div>
+
+<h2>Active Power</h2>
+<div class="grid" id="power"></div>
+
+<h2>Reactive Power</h2>
+<div id="reactive" class="card"></div>
+
+<h2>Energy</h2>
+<div id="energy" class="grid"></div>
+
+<h2>Daily Graph</h2>
+<canvas id="statsDayChart"></canvas>
+
+<script>
+
+    function card(title, value, time) {
+        return `
+    <div class="card">
+        <div class="title">${title}</div>
+        <div class="value">${value}</div>
+        <div class="time">${time ? ("at " + time) : ""}</div>
+    </div>`;
+    }
+
+    function loadSelectedDay() {
+        let d = document.getElementById("dayPicker").value;
+        if (!d) return;
+
+        fetch("/api/stats?date=" + d)
+            .then(r => r.json())
+            .then(s => renderStats(s));
+
+        // also update graph
+        loadDayGraph(d);
+    }
+
+    function loadStats() {
+        fetch("/api/stats/today")
+            .then(r => r.json())
+            .then(s => {
+                renderStats(s);
+                loadDayGraph(s.date); // auto-load today's graph
+            });
+    }
+
+    function renderStats(s) {
+        document.getElementById("date").innerHTML =
+            `<b>Date:</b> ${s.date}`;
+
+        document.getElementById("voltages").innerHTML = `
+        ${card("Max V L1", s.vL1_max + " V", s.vL1_max_time)}
+        ${card("Max V L2", s.vL2_max + " V", s.vL2_max_time)}
+        ${card("Max V L3", s.vL3_max + " V", s.vL3_max_time)}
+
+        ${card("Min V L1", s.vL1_min + " V", s.vL1_min_time)}
+        ${card("Min V L2", s.vL2_min + " V", s.vL2_min_time)}
+        ${card("Min V L3", s.vL3_min + " V", s.vL3_min_time)}
+    `;
+
+        document.getElementById("imbalance").innerHTML =
+            card("Max Imbalance", s.maxImbalance + " V", s.imbalance_time);
+
+        document.getElementById("currents").innerHTML = `
+        ${card("Max I L1", s.iL1_max + " A", s.iL1_max_time)}
+        ${card("Max I L2", s.iL2_max + " A", s.iL2_max_time)}
+        ${card("Max I L3", s.iL3_max + " A", s.iL3_max_time)}
+    `;
+
+        document.getElementById("power").innerHTML = `
+        ${card("Max P L1", s.pL1_max + " W", s.pL1_max_time)}
+        ${card("Max P L2", s.pL2_max + " W", s.pL2_max_time)}
+        ${card("Max P L3", s.pL3_max + " W", s.pL3_max_time)}
+        ${card("Max P TOTAL", s.pTotal_max + " W", s.pTotal_max_time)}
+    `;
+
+        document.getElementById("reactive").innerHTML =
+            card("Max Reactive Power", s.qTotal_max + " VAR", s.qTotal_max_time);
+
+        document.getElementById("energy").innerHTML = `
+        ${card("kWh Import", s.kwhImportTotal + " kWh")}
+        ${card("kVarh Import", s.kvarhImportTotal + " kVarh")}
+    `;
+    }
+
+    loadStats();
+    setInterval(loadStats, 5000); // refresh every 5 seconds
+
+    let statsDayChart = null;
+
+    async function loadDayGraph(date) {
+        const r = await fetch(`/api/day?date=${date}`);
+        const d = await r.json();
+
+        const labels = d.timestamps;
+
+        const datasets = [
+            { label: "pL1", data: d.pL1, borderColor: "red" },
+            { label: "pL2", data: d.pL2, borderColor: "green" },
+            { label: "pL3", data: d.pL3, borderColor: "blue" },
+            { label: "pTotal", data: d.pTotal, borderColor: "black" }
+        ];
+
+        if (statsDayChart !== null) statsDayChart.destroy();
+
+        statsDayChart = new Chart(
+            document.getElementById("statsDayChart"),
+            {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    animation: false,
+                    spanGaps: true,
+                    pointRadius: 0,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: { x: { ticks: { maxTicksLimit: 24 } } }
+                }
+            }
+        );
+    }
+
+</script>
+
+</body>
+</html>

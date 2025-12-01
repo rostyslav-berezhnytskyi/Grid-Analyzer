@@ -1,5 +1,7 @@
 package com.elssolution.gridanalysis.modbus;
 
+import com.elssolution.gridanalysis.domain.GridMetricsDecoder;
+import com.elssolution.gridanalysis.domain.GridMetricsFull;
 import com.elssolution.gridanalysis.domain.SmSnapshot;
 import com.serotonin.modbus4j.ModbusFactory;
 import com.serotonin.modbus4j.ModbusMaster;
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ModbusSmReader {
 
+    private volatile GridMetricsFull latestDecoded = null;
+
     @Value("${serial.input.port}") private String port;
     @Value("${serial.input.baudRate}") private int baud;
     @Value("${serial.input.slaveId}") private int slaveId;
@@ -35,14 +39,16 @@ public class ModbusSmReader {
     @Value("${serial.input.timeoutsBeforeReopen:3}") private int timeoutsBeforeReopen;
 
     private final ScheduledExecutorService scheduler;
+    private final GridMetricsDecoder decoder;
     private volatile ModbusMaster master;
     private volatile SmSnapshot latestSnapshot = new SmSnapshot(new short[0], 0);
 
     private volatile int timeoutCount = 0;
     private volatile long lastOpenAt = 0;
 
-    public ModbusSmReader(ScheduledExecutorService scheduler) {
+    public ModbusSmReader(ScheduledExecutorService scheduler, GridMetricsDecoder decoder) {
         this.scheduler = scheduler;
+        this.decoder = decoder;
     }
 
     @PostConstruct
@@ -70,6 +76,13 @@ public class ModbusSmReader {
 
             timeoutCount = 0;
             latestSnapshot = new SmSnapshot(resp.getShortData(), System.currentTimeMillis());
+
+            try {
+                latestDecoded = decoder.decode(latestSnapshot);
+            }
+            catch (Exception e) {
+                System.err.println("Decode error: " + e.getMessage());
+            }
 
         } catch (Exception e) {
             handleError(e);
@@ -119,6 +132,10 @@ public class ModbusSmReader {
 
     public SmSnapshot getLatestSnapshotSM() {
         return latestSnapshot;
+    }
+
+    public GridMetricsFull getLatestMetricsFull() {
+        return latestDecoded;
     }
 }
 

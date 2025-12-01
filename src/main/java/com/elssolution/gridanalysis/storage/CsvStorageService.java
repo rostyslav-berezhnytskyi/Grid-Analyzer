@@ -23,22 +23,35 @@ public class CsvStorageService {
     }
 
     public void append(GridMetricsFull m) {
+        // Ignore invalid timestamps (1970)
+        if (m.timestamp() < 946684800000L) {   // year 2000
+            return;
+        }
+
         String filename = "data/" + DF.format(LocalDate.now()) + ".csv";
         File file = new File(filename);
 
         boolean writeHeader = !file.exists();
 
-        try (FileWriter out = new FileWriter(file, true)) {
+        for (int attempt = 1; attempt <= 5; attempt++) {
+            try (FileWriter out = new FileWriter(file, true)) {
 
-            if (writeHeader) {
-                out.write(headerLine());
+                if (writeHeader) {
+                    out.write(headerLine());
+                }
+
+                out.write(formatLine(m));
+                return;
+
+            } catch (IOException e) {
+                System.err.println("CSV write error: " + e.getMessage() +
+                        " (attempt " + attempt + ")");
+
+                try { Thread.sleep(200); } catch (InterruptedException ignored) {}
             }
-
-            out.write(formatLine(m));
-
-        } catch (IOException e) {
-            System.err.println("CSV write error: " + e.getMessage());
         }
+
+        System.err.println("CSV write failed after 5 attempts.");
     }
 
     private String headerLine() {

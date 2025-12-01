@@ -20,6 +20,7 @@ public class PollingService {
     private final ModbusSmReader modbus;
     private final GridMetricsDecoder decoder;
     private final CsvStorageService csv;
+    private final DailyStatsService dailyStatsService;
 
     // thread for polling
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -29,10 +30,11 @@ public class PollingService {
 
     public PollingService(ModbusSmReader modbus,
                           GridMetricsDecoder decoder,
-                          CsvStorageService csv) {
+                          CsvStorageService csv, DailyStatsService dailyStatsService) {
         this.modbus = modbus;
         this.decoder = decoder;
         this.csv = csv;
+        this.dailyStatsService = dailyStatsService;
     }
 
     @PostConstruct
@@ -56,6 +58,7 @@ public class PollingService {
 
             // append to CSV
             csv.append(m);
+            dailyStatsService.update(m);
 
         } catch (Exception e) {
             log.error("Polling tick failed: {}", e.getMessage(), e);
