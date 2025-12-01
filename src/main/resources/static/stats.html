@@ -103,42 +103,46 @@
             });
     }
 
+    function f2(x) {
+        return Number.parseFloat(x).toFixed(2);
+    }
+
     function renderStats(s) {
         document.getElementById("date").innerHTML =
             `<b>Date:</b> ${s.date}`;
 
         document.getElementById("voltages").innerHTML = `
-        ${card("Max V L1", s.vL1_max + " V", s.vL1_max_time)}
-        ${card("Max V L2", s.vL2_max + " V", s.vL2_max_time)}
-        ${card("Max V L3", s.vL3_max + " V", s.vL3_max_time)}
+        ${card("Max V L1", f2(s.vL1_max) + " V", s.vL1_max_time)}
+        ${card("Max V L2", f2(s.vL2_max) + " V", s.vL2_max_time)}
+        ${card("Max V L3", f2(s.vL3_max) + " V", s.vL3_max_time)}
 
-        ${card("Min V L1", s.vL1_min + " V", s.vL1_min_time)}
-        ${card("Min V L2", s.vL2_min + " V", s.vL2_min_time)}
-        ${card("Min V L3", s.vL3_min + " V", s.vL3_min_time)}
+        ${card("Min V L1", f2(s.vL1_min) + " V", s.vL1_min_time)}
+        ${card("Min V L2", f2(s.vL2_min) + " V", s.vL2_min_time)}
+        ${card("Min V L3", f2(s.vL3_min) + " V", s.vL3_min_time)}
     `;
 
         document.getElementById("imbalance").innerHTML =
-            card("Max Imbalance", s.maxImbalance + " V", s.imbalance_time);
+            card("Max Imbalance", f2(s.maxImbalance) + " V", s.imbalance_time);
 
         document.getElementById("currents").innerHTML = `
-        ${card("Max I L1", s.iL1_max + " A", s.iL1_max_time)}
-        ${card("Max I L2", s.iL2_max + " A", s.iL2_max_time)}
-        ${card("Max I L3", s.iL3_max + " A", s.iL3_max_time)}
+        ${card("Max I L1", f2(s.iL1_max) + " A", s.iL1_max_time)}
+        ${card("Max I L2", f2(s.iL2_max) + " A", s.iL2_max_time)}
+        ${card("Max I L3", f2(s.iL3_max) + " A", s.iL3_max_time)}
     `;
 
         document.getElementById("power").innerHTML = `
-        ${card("Max P L1", s.pL1_max + " W", s.pL1_max_time)}
-        ${card("Max P L2", s.pL2_max + " W", s.pL2_max_time)}
-        ${card("Max P L3", s.pL3_max + " W", s.pL3_max_time)}
-        ${card("Max P TOTAL", s.pTotal_max + " W", s.pTotal_max_time)}
+        ${card("Max P L1", f2(s.pL1_max) + " W", s.pL1_max_time)}
+        ${card("Max P L2", f2(s.pL2_max) + " W", s.pL2_max_time)}
+        ${card("Max P L3", f2(s.pL3_max) + " W", s.pL3_max_time)}
+        ${card("Max P TOTAL", f2(s.pTotal_max) + " W", s.pTotal_max_time)}
     `;
 
         document.getElementById("reactive").innerHTML =
-            card("Max Reactive Power", s.qTotal_max + " VAR", s.qTotal_max_time);
+            card("Max Reactive Power", f2(s.qTotal_max) + " VAR", s.qTotal_max_time);
 
         document.getElementById("energy").innerHTML = `
-        ${card("kWh Import", s.kwhImportTotal + " kWh")}
-        ${card("kVarh Import", s.kvarhImportTotal + " kVarh")}
+        ${card("kWh Import", f2(s.kwhImportTotal) + " kWh")}
+        ${card("kVarh Import", f2(s.kvarhImportTotal) + " kVarh")}
     `;
     }
 

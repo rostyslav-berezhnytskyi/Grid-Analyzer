@@ -10,6 +10,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -84,33 +85,40 @@ public class DailyStatsService {
             today = createEmpty(date);
         }
 
-        float imbalance = Math.abs(
-                Math.max(m.vL1(), Math.max(m.vL2(), m.vL3())) -
-                        Math.min(m.vL1(), Math.min(m.vL2(), m.vL3()))
-        );
+        // only include non-zero voltages
+        float[] volts = { m.vL1(), m.vL2(), m.vL3() };
+        List<Float> list = new ArrayList<>();
+        for (float v : volts) if (v > 50) list.add(v);  // 50 V threshold avoids garbage
+
+        float imbalance = 0;
+        if (list.size() >= 2) {
+            float max = Collections.max(list);
+            float min = Collections.min(list);
+            imbalance = max - min;
+        }
 
         today = new DailyStats(
                 date,
 
                 // MAX VOLTAGES
-                max(today.vL1_max(), m.vL1(), today.vL1_max_time(), t).val,
-                max(today.vL1_max(), m.vL1(), today.vL1_max_time(), t).time,
+                safeMax(today.vL1_max(), m.vL1(), today.vL1_max_time(), t).val,
+                safeMax(today.vL1_max(), m.vL1(), today.vL1_max_time(), t).time,
 
-                max(today.vL2_max(), m.vL2(), today.vL2_max_time(), t).val,
-                max(today.vL2_max(), m.vL2(), today.vL2_max_time(), t).time,
+                safeMax(today.vL2_max(), m.vL2(), today.vL2_max_time(), t).val,
+                safeMax(today.vL2_max(), m.vL2(), today.vL2_max_time(), t).time,
 
-                max(today.vL3_max(), m.vL3(), today.vL3_max_time(), t).val,
-                max(today.vL3_max(), m.vL3(), today.vL3_max_time(), t).time,
+                safeMax(today.vL3_max(), m.vL3(), today.vL3_max_time(), t).val,
+                safeMax(today.vL3_max(), m.vL3(), today.vL3_max_time(), t).time,
 
                 // MIN VOLTAGES
-                min(today.vL1_min(), m.vL1(), today.vL1_min_time(), t).val,
-                min(today.vL1_min(), m.vL1(), today.vL1_min_time(), t).time,
+                safeMin(today.vL1_min(), m.vL1(), today.vL1_min_time(), t).val,
+                safeMin(today.vL1_min(), m.vL1(), today.vL1_min_time(), t).time,
 
-                min(today.vL2_min(), m.vL2(), today.vL2_min_time(), t).val,
-                min(today.vL2_min(), m.vL2(), today.vL2_min_time(), t).time,
+                safeMin(today.vL2_min(), m.vL2(), today.vL2_min_time(), t).val,
+                safeMin(today.vL2_min(), m.vL2(), today.vL2_min_time(), t).time,
 
-                min(today.vL3_min(), m.vL3(), today.vL3_min_time(), t).val,
-                min(today.vL3_min(), m.vL3(), today.vL3_min_time(), t).time,
+                safeMin(today.vL3_min(), m.vL3(), today.vL3_min_time(), t).val,
+                safeMin(today.vL3_min(), m.vL3(), today.vL3_min_time(), t).time,
 
                 // IMBALANCE
                 max(today.maxImbalance(), imbalance, today.imbalance_time(), t).val,
@@ -149,6 +157,16 @@ public class DailyStatsService {
         );
 
         save();
+    }
+
+    private MaxMin safeMax(float oldVal, float newVal, String oldTime, String newTime) {
+        if (newVal == 0) return new MaxMin(oldVal, oldTime);
+        return (newVal > oldVal) ? new MaxMin(newVal, newTime) : new MaxMin(oldVal, oldTime);
+    }
+
+    private MaxMin safeMin(float oldVal, float newVal, String oldTime, String newTime) {
+        if (newVal == 0) return new MaxMin(oldVal, oldTime);
+        return (newVal < oldVal) ? new MaxMin(newVal, newTime) : new MaxMin(oldVal, oldTime);
     }
 
     private static class MaxMin {
