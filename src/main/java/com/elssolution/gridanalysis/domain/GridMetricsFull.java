@@ -22,4 +22,24 @@ public record GridMetricsFull(
 
         float kvarhImportL1, float kvarhImportL2, float kvarhImportL3,
         float kvarhImportTotal
-) { }
+) {
+    public static GridMetricsFull zero() {
+        long now = System.currentTimeMillis();
+        String human = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        return new GridMetricsFull(
+                human, now,
+                0,0,0,0,0,0,       // voltages
+                0,0,0,0,           // currents + neutral
+                0,0,0,0,           // active power
+                0,0,0,0,           // reactive power
+                0,0,0,0,           // apparent power
+                0,0,0,0,           // power factor
+                0,                 // frequency
+                0,0,0,0,           // kWh import
+                0,0,0,0            // kvarh import
+        );
+    }
+
+}

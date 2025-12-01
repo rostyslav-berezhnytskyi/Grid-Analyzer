@@ -2,6 +2,7 @@ package com.elssolution.gridanalysis.web;
 
 import com.elssolution.gridanalysis.domain.GridMetricsFull;
 import com.elssolution.gridanalysis.modbus.ModbusSmReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @RestController
 public class GridController {
+    @Value("${storage.csv.path}")
+    private String basePath;
 
     private final ModbusSmReader smReader;
 
@@ -29,7 +32,7 @@ public class GridController {
 
     @GetMapping("/api/days")
     public List<String> days() {
-        File folder = new File("data");
+        File folder = new File(basePath);
         return Arrays.stream(folder.list())
                 .filter(f -> f.endsWith(".csv"))
                 .sorted()
@@ -38,7 +41,7 @@ public class GridController {
 
     @GetMapping("/api/history/{day}")
     public String history(@PathVariable String day) throws IOException {
-        return Files.readString(Path.of("data/" + day));
+        return Files.readString(Path.of(basePath + "/" + day));
     }
 }
 

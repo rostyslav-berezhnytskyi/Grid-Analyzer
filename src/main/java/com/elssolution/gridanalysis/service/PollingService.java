@@ -53,7 +53,7 @@ public class PollingService {
             }
 
             // decode raw snapshot
-            GridMetricsFull m = decoder.decode(snap);
+            GridMetricsFull m = modbus.getLatestMetricsFull();
             latest = m;
 
             // append to CSV

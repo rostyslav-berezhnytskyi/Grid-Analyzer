@@ -1,5 +1,6 @@
 package com.elssolution.gridanalysis.web;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import java.io.*;
 import java.time.*;
@@ -9,9 +10,12 @@ import java.util.*;
 @RequestMapping("/api")
 public class DayDataController {
 
+    @Value("${storage.csv.path}")
+    private String basePath;
+
     @GetMapping("/day")
     public Map<String, Object> getDay(@RequestParam String date) throws Exception {
-        File file = new File("data/" + date + ".csv");
+        File file = new File(basePath + "/" + date + ".csv");
 
         Map<String, Object> result = new HashMap<>();
         List<String> timestamps = new ArrayList<>();
