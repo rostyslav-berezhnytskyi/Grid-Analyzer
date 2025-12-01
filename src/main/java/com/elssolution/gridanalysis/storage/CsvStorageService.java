@@ -1,6 +1,8 @@
 package com.elssolution.gridanalysis.storage;
 
 import com.elssolution.gridanalysis.domain.GridMetricsFull;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,14 +14,15 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class CsvStorageService {
 
+    @Value("${storage.csv.path}")
+    private String basePath;
+
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public CsvStorageService() {
-        // ensure data folder exists
-        File folder = new File("data");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
+    @PostConstruct
+    public void init() {
+        File folder = new File(basePath);
+        if (!folder.exists()) folder.mkdirs();
     }
 
     public void append(GridMetricsFull m) {
@@ -28,7 +31,7 @@ public class CsvStorageService {
             return;
         }
 
-        String filename = "data/" + DF.format(LocalDate.now()) + ".csv";
+        String filename = basePath + "/" + DF.format(LocalDate.now()) + ".csv";
         File file = new File(filename);
 
         boolean writeHeader = !file.exists();

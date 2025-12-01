@@ -2,6 +2,8 @@ package com.elssolution.gridanalysis.service;
 
 import com.elssolution.gridanalysis.domain.DailyStats;
 import com.elssolution.gridanalysis.domain.GridMetricsFull;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -13,18 +15,22 @@ import java.util.List;
 @Service
 public class DailyStatsService {
 
+    @Value("${storage.csv.path}")
+    private String basePath;
+
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     private DailyStats today = null;
 
-    public DailyStatsService() {
+    @PostConstruct
+    public void init() {
         loadToday();
     }
 
     private void loadToday() {
         String date = DF.format(LocalDate.now());
-        File f = new File("data/stats.csv");
+        File f = new File(basePath + "/stats.csv");
 
         if (!f.exists()) {
             today = createEmpty(date);
@@ -160,7 +166,7 @@ public class DailyStatsService {
     }
 
     private synchronized void save() {
-        File f = new File("data/stats.csv");
+        File f = new File(basePath + "/stats.csv");
         List<String> lines = new ArrayList<>();
 
         // HEADER always first line
@@ -273,7 +279,7 @@ public class DailyStatsService {
     }
 
     public DailyStats loadByDate(String date) {
-        File f = new File("data/stats.csv");
+        File f = new File(basePath + "/stats.csv");
 
         if (!f.exists()) return createEmpty(date);
 
