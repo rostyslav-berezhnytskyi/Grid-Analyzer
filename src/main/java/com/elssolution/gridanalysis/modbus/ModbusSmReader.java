@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -97,6 +98,7 @@ public class ModbusSmReader {
             // 3️⃣ SAVE GOOD SNAPSHOT
             lastGoodRegisters = Arrays.copyOf(raw, raw.length);
             latestSnapshot = new SmSnapshot(lastGoodRegisters, System.currentTimeMillis());
+            dumpRaw(resp.getShortData());
 
             // 4️⃣ DECODE
             latestDecoded = decoder.decode(latestSnapshot);
@@ -148,5 +150,17 @@ public class ModbusSmReader {
 
     public SmSnapshot getLatestSnapshotSM() {
         return latestSnapshot;
+    }
+
+    private void dumpRaw(short[] data) {
+        try (FileWriter fw = new FileWriter("/home/els/grid-analyzer-app/bin/data/raw_dump.txt", false)) {
+            fw.write("=== RAW SDM630 DATA ===\n");
+            for (int i = 0; i < data.length - 1; i += 2) {
+                float f = Float.intBitsToFloat(((data[i] & 0xffff) << 16) | (data[i + 1] & 0xffff));
+                fw.write(String.format("REG %03d = %f\n", i, f));
+            }
+        } catch (Exception e) {
+            System.err.println("Raw dump error: " + e.getMessage());
+        }
     }
 }
