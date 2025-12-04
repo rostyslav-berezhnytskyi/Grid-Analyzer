@@ -26,6 +26,9 @@ public class ModbusSmReader {
     private final ScheduledExecutorService scheduler;
     private final GridMetricsDecoder decoder;
 
+    @Value("${storage.csv.path}")
+    private String basePath;
+
     @Value("${serial.input.port}") private String port;
     @Value("${serial.input.baudRate}") private int baud;
     @Value("${serial.input.slaveId}") private int slaveId;
@@ -153,7 +156,7 @@ public class ModbusSmReader {
     }
 
     private void dumpRaw(short[] data) {
-        try (FileWriter fw = new FileWriter("/home/els/grid-analyzer-app/bin/data/raw_dump.txt", false)) {
+        try (FileWriter fw = new FileWriter(basePath + "/raw_dump.txt", false)) {
             fw.write("=== RAW SDM630 DATA ===\n");
             for (int i = 0; i < data.length - 1; i += 2) {
                 float f = Float.intBitsToFloat(((data[i] & 0xffff) << 16) | (data[i + 1] & 0xffff));

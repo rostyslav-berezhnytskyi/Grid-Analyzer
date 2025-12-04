@@ -22,6 +22,28 @@ public class GridMetricsDecoder {
     public GridMetricsFull decode(SmSnapshot snap) {
         short[] w = snap.data;
 
+        int pL1 = r.pL1();
+        int pL2 = r.pL2();
+        int pL3 = r.pL3();
+
+        float pTotal =
+                f.readFloatOrDefault(w,pL1, 0)
+                        + f.readFloatOrDefault(w, pL2, 0)
+                        + f.readFloatOrDefault(w, pL3, 0);
+
+
+        float sL1 = f.readFloatOrDefault(w, r.sL1(), 0);
+        float sL2 = f.readFloatOrDefault(w, r.sL2(), 0);
+        float sL3 = f.readFloatOrDefault(w, r.sL3(), 0);
+        float sTotalCalc = sL1 + sL2 + sL3;
+
+        float qL1 = f.readFloatOrDefault(w, r.qL1(), 0);
+        float qL2 = f.readFloatOrDefault(w, r.qL2(), 0);
+        float qL3 = f.readFloatOrDefault(w, r.qL3(), 0);
+        float qTotalCalc = qL1 + qL2 + qL3;
+
+        float pfTotal = (sTotalCalc > 0 ? pTotal / sTotalCalc : 0);
+
         String human = Instant.ofEpochMilli(snap.updatedAtMs)// normal human time
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
@@ -41,27 +63,27 @@ public class GridMetricsDecoder {
                 f.readFloatOrDefault(w, r.iL1(), 0),
                 f.readFloatOrDefault(w, r.iL2(), 0),
                 f.readFloatOrDefault(w, r.iL3(), 0),
-                f.readFloatOrDefault(w, r.in(), 0),
+                0,
 
-                f.readFloatOrDefault(w, r.pL1(), 0),
-                f.readFloatOrDefault(w, r.pL2(), 0),
-                f.readFloatOrDefault(w, r.pL3(), 0),
-                f.readFloatOrDefault(w, r.pTotal(), 0),
+                f.readFloatOrDefault(w, pL1, 0),
+                f.readFloatOrDefault(w, pL2, 0),
+                f.readFloatOrDefault(w, pL3, 0),
+                pTotal,
 
-                f.readFloatOrDefault(w, r.qL1(), 0),
-                f.readFloatOrDefault(w, r.qL2(), 0),
-                f.readFloatOrDefault(w, r.qL3(), 0),
-                f.readFloatOrDefault(w, r.qTotal(), 0),
+                qL1,
+                qL2,
+                qL3,
+                qTotalCalc,
 
-                f.readFloatOrDefault(w, r.sL1(), 0),
-                f.readFloatOrDefault(w, r.sL2(), 0),
-                f.readFloatOrDefault(w, r.sL3(), 0),
-                f.readFloatOrDefault(w, r.sTotal(), 0),
+               sL1,
+                sL2,
+                sL3,
+                sTotalCalc,
 
                 f.readFloatOrDefault(w, r.pfL1(), 0),
                 f.readFloatOrDefault(w, r.pfL2(), 0),
                 f.readFloatOrDefault(w, r.pfL3(), 0),
-                f.readFloatOrDefault(w, r.pfTotal(), 0),
+                pfTotal,
 
                 f.readFloatOrDefault(w, r.frequency(), 0),
 
